@@ -22,8 +22,8 @@ function calcCronExpr(mode, number) {
 }
 
 class CronDaemon {
-  constructor(getDocs, triggerDoc, { mode, number } = {}) {
-    this.log = log
+  constructor(getDocs, triggerDoc, { mode, number, logger } = {}) {
+    this.log = logger || log
     this.jobDocs = {}
     this.jobMap = {}
 
@@ -44,7 +44,7 @@ class CronDaemon {
   }
 
   async syncDocs() {
-    this.log('Syncing docs...')
+    this.log('Syncing docs.')
 
     const current = Object.keys(this.jobDocs).map(k => this.jobDocs[k])
     const latest = await this.getDocs()
@@ -63,7 +63,7 @@ class CronDaemon {
   }
 
   async scanForFailedPublishes() {
-    this.log('Scanning for failed publishes...')
+    this.log('Scanning for failed publishes.')
 
     const issues = []
     const docList = Object.keys(this.jobDocs).map(k => this.jobDocs[k])
@@ -121,19 +121,19 @@ class CronDaemon {
   }
 
   setupJob(doc) {
-    this.log(`Setting up job with doc id: ${doc.id}.`)
-
     const f = () => this.trigger(doc, false)
     const number = doc.number || this.opts.number || 0
     const cronExpr = calcCronExpr(this.opts.mode, number)
     const timezone = doc.timezone || 'UTC'
+
+    this.log(`Setting up job: ${doc.id} - ${cronExpr} - ${timezone}.`)
 
     this.jobDocs[doc.id] = doc
     this.jobMap[doc.id] = nSchedule.scheduleJob(doc.id, cronExpr, timezone, f)
   }
 
   removeJob(id) {
-    this.log(`Removing job with doc id: ${id}.`)
+    this.log(`Removing job: ${id}.`)
 
     this.jobMap[id].cancel()
     delete this.jobMap[id]
@@ -145,6 +145,8 @@ class CronDaemon {
     const data = isRetry
       ? { checkpoint: now, runSince: 0 }
       : { runSince: doc.runSince + 1 }
+
+    this.log(`Triggering job: ${doc.id} - isRetry[${isRetry}].`)
 
     await this.triggerDoc(doc.id, data)
     this.jobDocs[doc.id] = Object.assign(doc, data)
