@@ -70,9 +70,11 @@ class CronDaemon {
 
     docList.forEach(doc => {
       const timezone = doc.timezone || 'UTC'
-      const nowLocal = moment(moment.tz(timezone).format('YYYY-MM-DDTHH:mm:ss'))
-      const localCP = moment(doc.checkpoint).tz(timezone)
-      const checkpointM = moment(localCP.format('YYYY-MM-DDTHH:mm:ss'))
+      const nowLocal = moment.utc(
+        moment.tz(timezone).format('YYYY-MM-DDTHH:mm:ss'),
+      )
+      const localCP = moment.utc(doc.checkpoint).tz(timezone)
+      const checkpointM = moment.utc(localCP.format('YYYY-MM-DDTHH:mm:ss'))
       const number = doc.number || this.opts.number || 0
       let mCount
 
