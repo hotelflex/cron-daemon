@@ -1,14 +1,13 @@
 {
   "name": "@hotelflex/cron-daemon",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "main": "src",
   "scripts": {
     "precommit": "pretty-quick --staged"
   },
   "dependencies": {
     "moment": "^2.22.2",
-    "moment-timezone": "^0.5.16",
-    "node-schedule-tz": "^1.2.1-4"
+    "moment-timezone": "^0.5.16"
   },
   "devDependencies": {
     "husky": "^0.14.3",
